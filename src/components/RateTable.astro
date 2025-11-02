@@ -8,6 +8,7 @@ const cfg = {
   pairs,
   apiUrl,
   refreshMs: Number(refreshMs) || 120000,
+  flagMap: { USD: 'us', EUR: 'eu', MXN: 'mx', PHP: 'ph', NGN: 'ng', INR: 'in', PKR: 'pk', GBP: 'gb', JPY: 'jp', CHF: 'ch', AUD: 'au', CAD: 'ca', CNY: 'cn' }
 };
 ---
 <div class="card" data-rate-table aria-live="polite">
@@ -49,9 +50,15 @@ const cfg = {
       const onlyPairs = parsed.pairs || [];
       const apiUrl = parsed.apiUrl || 'https://open.er-api.com/v6/latest';
       const refreshMs = Number(parsed.refreshMs) || 120000;
+      const flagMap = parsed.flagMap || {};
 
       const body = root.querySelector('[data-body]');
       const updatedEl = root.querySelector('[data-updated]');
+
+      function toFlag(ccy){
+        const v = (flagMap && flagMap[ccy]) || ccy.slice(0,2);
+        return String(v).toLowerCase();
+      }
 
       async function fetchBase(base) {
         const url = apiUrl.replace(/\/$/, '') + '/' + encodeURIComponent(base);
@@ -64,9 +71,16 @@ const cfg = {
         const frag = document.createDocumentFragment();
         Object.keys(map).sort().forEach((p) => {
           const entry = map[p];
+          const [base, quote] = p.split('-');
+          const fb = toFlag(base);
+          const fq = toFlag(quote);
           const tr = document.createElement('tr');
           tr.innerHTML =
-            '<td><a href="/rates/' + p + '\">' + p + '</a></td>' +
+            '<td>'+
+            '<img class="flag" alt="' + base + '" src="https://flagcdn.com/' + fb + '.svg" /> ' +
+            '<a href="/rates/' + p + '\">' + p + '</a> ' +
+            '<img class="flag" alt="' + quote + '" src="https://flagcdn.com/' + fq + '.svg" />' +
+            '</td>' +
             '<td>' + Number(entry.rate).toFixed(4) + '</td>' +
             '<td>$' + Number(entry.fee || 0).toFixed(2) + '</td>' +
             '<td>' + (entry.delivery || '—') + '</td>';

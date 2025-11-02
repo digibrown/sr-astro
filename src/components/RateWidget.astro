@@ -9,18 +9,25 @@ const {
 
 const [base, quote] = String(pair).split('-');
 const id = `rate-${base}-${quote}`.toLowerCase();
+const FLAG_MAP = {
+  USD: 'us', EUR: 'eu', MXN: 'mx', PHP: 'ph', NGN: 'ng', INR: 'in', PKR: 'pk',
+  GBP: 'gb', JPY: 'jp', CHF: 'ch', AUD: 'au', CAD: 'ca', CNY: 'cn'
+};
 const cfg = {
   pair: `${base}-${quote}`,
   apiUrl,
   refreshMs: Number(refreshMs) || 60000,
   showSelector: Boolean(showSelector),
-  pairsOptions
+  pairsOptions,
+  flagMap: FLAG_MAP
 };
 ---
 <div class="card" id={id} aria-live="polite" data-rate-widget>
   <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-    <div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <img class="flag" data-flag-base alt={base} src={`https://flagcdn.com/${(FLAG_MAP[base] || base).toLowerCase()}.svg`} width="18" height="12" />
       <strong style="font-size: 18px;">{base} → {quote}</strong>
+      <img class="flag" data-flag-quote alt={quote} src={`https://flagcdn.com/${(FLAG_MAP[quote] || quote).toLowerCase()}.svg`} width="18" height="12" />
       <div class="muted" style="font-size: 12px;">Live rate and quick convert</div>
     </div>
     <div style="display:flex; align-items:center; gap:8px;">
@@ -60,6 +67,7 @@ const cfg = {
       let refreshMs = 60000;
       let showSelector = false;
       let pairsOptions = [];
+      let flagMap = {};
       try {
         const raw = (cfgNode && cfgNode.textContent) || '{}';
         const parsed = JSON.parse(raw);
@@ -68,6 +76,7 @@ const cfg = {
         refreshMs = Number(parsed.refreshMs) || refreshMs;
         showSelector = Boolean(parsed.showSelector);
         pairsOptions = Array.isArray(parsed.pairsOptions) ? parsed.pairsOptions : [];
+        flagMap = parsed.flagMap || {};
       } catch (e) {
         console.warn('RateWidget config JSON parse failed');
       }
@@ -82,6 +91,13 @@ const cfg = {
       const amtLabel = root.querySelector('label:first-child .muted');
       const getLabel = root.querySelector('label:nth-child(2) .muted');
       const selectEl = root.querySelector('[data-pair-select]');
+      const flagBase = root.querySelector('[data-flag-base]');
+      const flagQuote = root.querySelector('[data-flag-quote]');
+
+      function toFlag(ccy){
+        const v = (flagMap && flagMap[ccy]) || ccy.slice(0,2);
+        return String(v).toLowerCase();
+      }
 
       async function fetchRates() {
         try {
@@ -112,12 +128,23 @@ const cfg = {
         if (headingEl) headingEl.textContent = base + ' → ' + quote;
         if (amtLabel) amtLabel.textContent = 'Amount (' + base + ')';
         if (getLabel) getLabel.textContent = 'You get (' + quote + ')';
+        if (flagBase) flagBase.src = 'https://flagcdn.com/' + toFlag(base) + '.svg';
+        if (flagBase) flagBase.alt = base;
+        if (flagQuote) flagQuote.src = 'https://flagcdn.com/' + toFlag(quote) + '.svg';
+        if (flagQuote) flagQuote.alt = quote;
       }
 
       async function refresh() {
         const data = await fetchRates();
         updateUI(data);
       }
+
+      // Set initial flags immediately
+      (function(){
+        const [b,q] = String(pair).split('-');
+        if (flagBase) flagBase.src = 'https://flagcdn.com/' + toFlag(b) + '.svg';
+        if (flagQuote) flagQuote.src = 'https://flagcdn.com/' + toFlag(q) + '.svg';
+      })();
 
       amountEl.addEventListener('input', refresh);
       if (selectEl) {

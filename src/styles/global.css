@@ -57,3 +57,4 @@ input, select {
   border: 1px solid rgba(255,255,255,0.18); color: var(--muted);
 }
 
+.flag { width: 18px; height: 12px; border-radius: 2px; display:inline-block; box-shadow: 0 0 0 1px rgba(255,255,255,0.15) inset; }
