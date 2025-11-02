@@ -1,0 +1,90 @@
+---
+const {
+  pair = 'USD-PHP',
+  apiUrl = '/data/rates.json',
+  refreshMs = 60_000,
+} = Astro.props;
+
+const [base, quote] = String(pair).split('-');
+const id = `rate-${base}-${quote}`.toLowerCase();
+const cfg = {
+  pair: `${base}-${quote}`,
+  apiUrl,
+  refreshMs: Number(refreshMs) || 60000,
+};
+---
+<div class="card" id={id} aria-live="polite" data-rate-widget>
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+    <div>
+      <strong style="font-size: 18px;">{base} → {quote}</strong>
+      <div class="muted" style="font-size: 12px;">Live rate and quick convert</div>
+    </div>
+    <span class="pill" data-updated>—</span>
+  </div>
+  <div style="margin-top: 12px; display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
+    <label>
+      <div class="muted" style="font-size:12px; margin-bottom:6px;">Amount ({base})</div>
+      <input type="number" min="0" step="0.01" value="100" data-amount />
+    </label>
+    <label>
+      <div class="muted" style="font-size:12px; margin-bottom:6px;">You get ({quote})</div>
+      <input type="text" readonly data-result />
+    </label>
+  </div>
+  <div style="display:flex; align-items:center; gap:12px; margin-top:12px; flex-wrap:wrap;">
+    <span class="pill">Rate: <strong style="margin-left:6px;" data-rate>—</strong></span>
+    <span class="pill">Fee: <span style="margin-left:6px;" data-fee>—</span></span>
+    <span class="pill">Delivery: <span style="margin-left:6px;" data-delivery>—</span></span>
+  </div>
+  <div class="muted" style="margin-top:10px; font-size:12px;">Data source: {apiUrl}</div>
+  <script type="application/json" data-config>{JSON.stringify(cfg)}</script>
+  <script>
+  (() => {
+    const root = document.currentScript.closest('[data-rate-widget]');
+    const cfgNode = root.querySelector('script[type="application/json"][data-config]');
+    const { pair, apiUrl, refreshMs } = JSON.parse(cfgNode.textContent || '{}');
+
+    const amountEl = root.querySelector('[data-amount]');
+    const resultEl = root.querySelector('[data-result]');
+    const rateEl = root.querySelector('[data-rate]');
+    const feeEl = root.querySelector('[data-fee]');
+    const deliveryEl = root.querySelector('[data-delivery]');
+    const updatedEl = root.querySelector('[data-updated]');
+
+    async function fetchRates() {
+      try {
+        const res = await fetch(apiUrl, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e) {
+        console.error('Rate fetch failed:', e);
+        return null;
+      }
+    }
+
+    function updateUI(rateData) {
+      if (!rateData) return;
+      const entry = rateData.rates && rateData.rates[pair];
+      if (!entry) return;
+      const rate = Number(entry.rate);
+      const fee = Number(entry.fee || 0);
+      rateEl.textContent = isFinite(rate) ? rate.toFixed(4) : '—';
+      feeEl.textContent = isFinite(fee) ? ('$' + fee.toFixed(2)) : '—';
+      deliveryEl.textContent = entry.delivery || '—';
+      const amt = Number(amountEl.value || 0);
+      const result = isFinite(rate) ? amt * rate : 0;
+      resultEl.value = result.toFixed(2);
+      updatedEl.textContent = (rateData.updatedAt ? new Date(rateData.updatedAt).toLocaleString() : 'now');
+    }
+
+    async function refresh() {
+      const data = await fetchRates();
+      updateUI(data);
+    }
+
+    amountEl.addEventListener('input', refresh);
+    refresh();
+    if (refreshMs > 0) setInterval(refresh, refreshMs);
+  })();
+  </script>
+</div>

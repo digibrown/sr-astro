@@ -1,0 +1,40 @@
+---
+import '../styles/global.css';
+const { title = 'SendRemit', description = 'Fast, fair, and transparent remittances' } = Astro.props;
+---
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+        <a href="/" style="display:flex; align-items:center; gap:10px;">
+          <img src="/favicon.svg" alt="SendRemit" width="28" height="28" />
+          <strong>sendremit.com</strong>
+        </a>
+        <nav style="display:flex; gap:14px;">
+          <a href="/rates/">Rates</a>
+          <a href="/guides/">Guides</a>
+          <a href="https://github.com/" rel="noopener" target="_blank" class="muted">GitHub</a>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer>
+      <div class="muted" style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+        <span>© {new Date().getFullYear()} SendRemit</span>
+        <span>Transparent FX • Fast payouts</span>
+      </div>
+    </footer>
+  </body>
+
+</html>

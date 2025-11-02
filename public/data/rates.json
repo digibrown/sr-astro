@@ -1,0 +1,10 @@
+{
+  "updatedAt": "2025-01-01T00:00:00Z",
+  "rates": {
+    "USD-PHP": { "rate": 58.45, "fee": 2.0, "delivery": "Bank, Cash Pickup" },
+    "USD-MXN": { "rate": 18.12, "fee": 1.5, "delivery": "Bank" },
+    "USD-NGN": { "rate": 1520.0, "fee": 3.0, "delivery": "Bank, Wallet" },
+    "EUR-PHP": { "rate": 62.95, "fee": 2.0, "delivery": "Bank" }
+  }
+}
+

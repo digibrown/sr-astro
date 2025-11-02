@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const guides = await Astro.glob('./*.md');
+---
+<BaseLayout title="Guides • SendRemit">
+  <h1 style="margin:0 0 8px;">Guides</h1>
+  <p class="muted">Step-by-step help for sending money globally.</p>
+  <div class="grid" style="margin-top:12px;">
+    {guides.map((g) => (
+      <a href={g.url} class="card" style="display:block;">
+        <strong>{g.frontmatter.title}</strong>
+        <div class="muted" style="font-size: 13px; margin-top:4px;">{g.frontmatter.description}</div>
+      </a>
+    ))}
+  </div>
+</BaseLayout>
+

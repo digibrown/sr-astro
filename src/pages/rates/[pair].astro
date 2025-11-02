@@ -1,0 +1,13 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import RateWidget from '../../components/RateWidget.astro';
+
+const { pair } = Astro.params;
+const display = (pair || '').toUpperCase();
+---
+<BaseLayout title={`${display} Rate • SendRemit`}>
+  <a href="/rates/" class="muted">← Back to rates</a>
+  <h1 style="margin:6px 0 8px;">{display} rate</h1>
+  <RateWidget pair={display} apiUrl="/data/rates.json" />
+</BaseLayout>
+

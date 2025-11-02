@@ -1,0 +1,88 @@
+---
+const {
+  pairs = [], // e.g., ['USD-PHP','USD-MXN'] — empty shows all from feed
+  apiUrl = '/data/rates.json',
+  refreshMs = 120_000,
+} = Astro.props;
+const cfg = {
+  pairs,
+  apiUrl,
+  refreshMs: Number(refreshMs) || 120000,
+};
+---
+<div class="card" data-rate-table aria-live="polite">
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+    <strong>Rates</strong>
+    <span class="pill" data-updated>—</span>
+  </div>
+  <div style="overflow:auto; margin-top: 10px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Pair</th>
+          <th>Rate</th>
+          <th>Fee</th>
+          <th>Delivery</th>
+        </tr>
+      </thead>
+      <tbody data-body>
+        <tr><td colspan="4" class="muted">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="muted" style="margin-top:10px; font-size:12px;">Data source: {apiUrl}</div>
+  <script type="application/json" data-config>{JSON.stringify(cfg)}</script>
+  <script>
+  (() => {
+    const root = document.currentScript.closest('[data-rate-table]');
+    const cfgNode = root.querySelector('script[type="application/json"][data-config]');
+    const parsed = cfgNode && cfgNode.textContent ? JSON.parse(cfgNode.textContent) : {};
+    const onlyPairs = parsed.pairs || [];
+    const apiUrl = parsed.apiUrl || '/data/rates.json';
+    const refreshMs = Number(parsed.refreshMs) || 120000;
+
+    const body = root.querySelector('[data-body]');
+    const updatedEl = root.querySelector('[data-updated]');
+
+    async function fetchRates() {
+      try {
+        const res = await fetch(apiUrl, { cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } catch (e) {
+        console.error('Rate table fetch failed:', e);
+        return null;
+      }
+    }
+
+    function renderRows(data) {
+      const rates = (data && data.rates) || {};
+      const list = onlyPairs && onlyPairs.length ? onlyPairs : Object.keys(rates).sort();
+      const frag = document.createDocumentFragment();
+      list.forEach((p) => {
+        const entry = rates[p];
+        if (!entry) return;
+        const tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><a href="/rates/' + p + '\">' + p + '</a></td>' +
+          '<td>' + Number(entry.rate).toFixed(4) + '</td>' +
+          '<td>$' + Number(entry.fee || 0).toFixed(2) + '</td>' +
+          '<td>' + (entry.delivery || '—') + '</td>';
+        frag.appendChild(tr);
+      });
+      body.innerHTML = '';
+      body.appendChild(frag);
+      updatedEl.textContent = (data && data.updatedAt ? new Date(data.updatedAt).toLocaleString() : 'now');
+    }
+
+    async function refresh() {
+      const data = await fetchRates();
+      if (data) renderRows(data);
+    }
+
+    refresh();
+    if (refreshMs > 0) setInterval(refresh, refreshMs);
+  })();
+  </script>
+</div>
+

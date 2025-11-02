@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import RateWidget from '../components/RateWidget.astro';
+import RateTable from '../components/RateTable.astro';
+---
+<BaseLayout title="SendRemit • Fast, fair remittances">
+  <section class="grid cols-2">
+    <div class="card">
+      <h1 style="margin:0 0 8px;">Send money, with great rates</h1>
+      <p class="muted">Transparent FX, fast payouts, and helpful guides for every corridor.</p>
+      <div style="margin-top:12px; display:flex; gap:10px;">
+        <a class="btn" href="/rates/">View live rates</a>
+        <a class="btn" style="background:transparent; border:1px solid rgba(255,255,255,.2)" href="/guides/">Read guides</a>
+      </div>
+    </div>
+    <RateWidget pair="USD-PHP" apiUrl="/data/rates.json" />
+  </section>
+
+  <div style="height: 10px;"></div>
+
+  <RateTable apiUrl="/data/rates.json" />
+</BaseLayout>
+
