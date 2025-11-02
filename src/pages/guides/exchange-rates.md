@@ -1,6 +1,6 @@
 ---
 title: Understanding Exchange Rates
-layout: ../../layouts/BaseLayout.astro
+layout: ../../layouts/GuideLayout.astro
 description: Learn about foreign exchange rates, how they work, and what affects them.
 ---
 
