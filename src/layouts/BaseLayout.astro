@@ -1,6 +1,16 @@
 ---
 import '../styles/global.css';
-const { title = 'SendRemit', description = 'Fast, fair, and transparent remittances' } = Astro.props;
+const {
+  title = 'SendRemit',
+  description = 'Fast, fair, and transparent remittances',
+  image = '/og-image.png',
+  ogType = 'website'
+} = Astro.props;
+
+const site = Astro.site?.toString();
+const url = Astro.url;
+const canonical = site ? new URL(url.pathname, site).toString() : url.pathname;
+const ogImage = image?.startsWith('http') ? image : (site ? new URL(image, site).toString() : image);
 ---
 <!doctype html>
 <html lang="en">
@@ -10,6 +20,18 @@ const { title = 'SendRemit', description = 'Fast, fair, and transparent remittan
     <link rel="icon" href="/favicon.svg" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#0e1530" />
+    <meta property="og:site_name" content="SendRemit" />
+    <meta property="og:type" content={ogType} />
+    {site && <meta property="og:url" content={canonical} />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
   </head>
   <body>
     <header>

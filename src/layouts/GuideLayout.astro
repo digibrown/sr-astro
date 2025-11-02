@@ -1,14 +1,13 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-const { title } = Astro.props;
+const { title, description = 'A practical guide from SendRemit', image } = Astro.props;
 ---
-<BaseLayout title={`${title} • SendRemit Guides`}>
+<BaseLayout title={`${title} • SendRemit Guides`} description={description} image={image} ogType="article">
   <article class="card">
     <header style="margin-bottom: 12px;">
       <h1 style="margin:0 0 6px;">{title}</h1>
-      <p class="muted" style="margin:0;">A practical guide from SendRemit</p>
+      <p class="muted" style="margin:0;">{description}</p>
     </header>
     <slot />
   </article>
 </BaseLayout>
-

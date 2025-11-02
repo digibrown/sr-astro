@@ -1,17 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RateWidget from '../../components/RateWidget.astro';
-import { readFile } from 'node:fs/promises';
+import pairs from '../../data/pairs.json';
 
 export async function getStaticPaths() {
-  const pairs = ['USD-PHP', 'USD-MXN', 'USD-NGN', 'EUR-PHP'];
-  return pairs.map((p) => ({ params: { pair: p } }));
+  return (pairs as string[]).map((p) => ({ params: { pair: p } }));
 }
 
 const { pair } = Astro.params;
 const display = (pair || '').toUpperCase();
 ---
-<BaseLayout title={`${display} Rate • SendRemit`}>
+<BaseLayout title={`${display} Rate • SendRemit`} image={`/og/rates/${display}.png`}>
   <a href="/rates/" class="muted">← Back to rates</a>
   <h1 style="margin:6px 0 8px;">{display} rate</h1>
   <RateWidget pair={display} />
