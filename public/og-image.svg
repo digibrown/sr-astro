@@ -8,10 +8,6 @@
       <stop offset="0%" stop-color="#06b6d4"/>
       <stop offset="100%" stop-color="#4f46e5"/>
     </linearGradient>
-    <linearGradient id="g2" x1="1" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7dd3fc"/>
-      <stop offset="100%" stop-color="#a78bfa"/>
-    </linearGradient>
     <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="b"/>
       <feColorMatrix in="b" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .25 0"/>
@@ -19,18 +15,13 @@
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
 
-  <!-- Decorative curves removed -->
-
-  <!-- Logo mark -->
-  <g transform="translate(80,80)">
-    <circle cx="64" cy="64" r="56" fill="none" stroke="url(#g1)" stroke-width="8" opacity="0.9"/>
-    <circle cx="32" cy="90" r="6" fill="#7dd3fc" filter="url(#soft)"/>
-    <circle cx="106" cy="54" r="6" fill="#a78bfa" filter="url(#soft)"/>
-  </g>
-
-  <!-- Title -->
-  <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" fill="#e7ecff">
-    <text x="200" y="160" font-size="56" font-weight="700">SendRemit</text>
-    <text x="200" y="210" font-size="28" fill="#a7b0d6">Fast, fair, and transparent remittances</text>
+  <!-- Centered logo + domain at 75% scale -->
+  <g transform="translate(600,315) scale(0.75)" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" fill="#e7ecff" text-anchor="middle">
+    <!-- Logo mark -->
+    <circle cx="0" cy="-40" r="180" fill="none" stroke="url(#g1)" stroke-width="20" opacity="0.95"/>
+    <circle cx="-60" cy="40" r="18" fill="#7dd3fc" filter="url(#soft)"/>
+    <circle cx="100" cy="-120" r="18" fill="#a78bfa" filter="url(#soft)"/>
+    <!-- Domain text -->
+    <text x="0" y="180" font-size="96" font-weight="800">sendremit.com</text>
   </g>
 </svg>

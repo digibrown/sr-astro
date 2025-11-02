@@ -1,31 +1,5 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { Resvg } from '@resvg/resvg-js';
-
-function pairSvg(pair) {
-  const [base, quote] = String(pair).split('-');
-  return `<?xml version="1.0" encoding="UTF-8"?>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="${pair}">
-    <defs>
-      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#0b1020"/>
-        <stop offset="100%" stop-color="#0e1530"/>
-      </linearGradient>
-    </defs>
-    <rect width="1200" height="630" fill="url(#bg)"/>
-    <!-- Curved lines removed -->
-    <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" fill="#e7ecff">
-      <text x="160" y="180" font-size="56" font-weight="700">SendRemit</text>
-      <text x="160" y="232" font-size="28" fill="#a7b0d6">Fast, fair, and transparent remittances</text>
-    </g>
-    <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" fill="#e7ecff" text-anchor="start">
-      <text x="160" y="340" font-size="96" font-weight="800">${base}</text>
-      <text x="410" y="340" font-size="72" fill="#a7b0d6">→</text>
-      <text x="480" y="340" font-size="96" font-weight="800">${quote}</text>
-      <text x="160" y="410" font-size="28" fill="#a7b0d6">Live exchange rate and quick converter</text>
-      <text x="160" y="450" font-size="22" fill="#8aa0d0">sendremit.com/rates/${base}-${quote}</text>
-    </g>
-  </svg>`;
-}
 
 async function renderSvgToPng(svgString) {
   const resvg = new Resvg(Buffer.from(svgString), {
@@ -45,21 +19,35 @@ async function main() {
   await writeFile(pngPath, basePng);
   console.log('Wrote', pngPath.pathname);
 
-  // Per-corridor OG images
-  const pairsPath = new URL('../src/data/pairs.json', import.meta.url);
-  const rawPairs = JSON.parse(String(await readFile(pairsPath)));
-  const outDir = new URL('../public/og/rates/', import.meta.url);
-  await mkdir(outDir, { recursive: true });
-  for (const p of rawPairs) {
-    const img = await renderSvgToPng(pairSvg(p));
-    const file = new URL(encodeURIComponent(p) + '.png', outDir);
-    await writeFile(file, img);
-    console.log('Wrote', file.pathname);
-  }
+  // Favicon from logo.svg -> PNGs -> ICO (PNG-contained)
+  const logoSvgPath = new URL('../public/logo.svg', import.meta.url);
+  const logoSvg = await readFile(logoSvgPath);
+  // 64px PNG
+  const icon64 = new Resvg(logoSvg, { fitTo: { mode: 'width', value: 64 }, background: 'transparent' }).render().asPng();
+  await writeFile(new URL('../public/favicon-64.png', import.meta.url), icon64);
+  // 32px PNG
+  const icon32 = new Resvg(logoSvg, { fitTo: { mode: 'width', value: 32 }, background: 'transparent' }).render().asPng();
+  await writeFile(new URL('../public/favicon-32.png', import.meta.url), icon32);
+  // Minimal ICO container with PNG payload
+  const icoHeader = Buffer.alloc(6);
+  icoHeader.writeUInt16LE(0, 0); // reserved
+  icoHeader.writeUInt16LE(1, 2); // icon type
+  icoHeader.writeUInt16LE(1, 4); // count
+  const dir = Buffer.alloc(16);
+  dir.writeUInt8(32, 0); // width
+  dir.writeUInt8(32, 1); // height
+  dir.writeUInt8(0, 2); // color count
+  dir.writeUInt8(0, 3); // reserved
+  dir.writeUInt16LE(1, 4); // planes
+  dir.writeUInt16LE(32, 6); // bit count
+  dir.writeUInt32LE(icon32.length, 8); // bytes in res
+  dir.writeUInt32LE(6 + 16, 12); // image offset
+  const ico = Buffer.concat([icoHeader, dir, Buffer.from(icon32)]);
+  await writeFile(new URL('../public/favicon.ico', import.meta.url), ico);
+  console.log('Wrote /public/favicon.ico');
 }
 
 main().catch((e) => {
   console.error('OG image generation failed:', e);
   process.exit(1);
 });
-
