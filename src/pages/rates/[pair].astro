@@ -1,30 +1,11 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import RateWidget from '../../components/RateWidget.astro';
-
-const { pair } = Astro.params;
-const display = (pair || '').toUpperCase();
----
-<BaseLayout title={`${display} Rate • SendRemit`}>
-  <a href="/rates/" class="muted">← Back to rates</a>
-  <h1 style="margin:6px 0 8px;">{display} rate</h1>
-  <RateWidget pair={display} apiUrl="/data/rates.json" />
-</BaseLayout>
----
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import RateWidget from '../../components/RateWidget.astro';
 import { readFile } from 'node:fs/promises';
 
 export async function getStaticPaths() {
-  try {
-    const raw = await readFile(new URL('../../../public/data/rates.json', import.meta.url));
-    const data = JSON.parse(String(raw));
-    const pairs = Object.keys(data?.rates ?? {});
-    return pairs.map((p) => ({ params: { pair: p } }));
-  } catch {
-    const pairs = ['USD-PHP'];
-    return pairs.map((p) => ({ params: { pair: p } }));
-  }
+  const pairs = ['USD-PHP', 'USD-MXN', 'USD-NGN', 'EUR-PHP'];
+  return pairs.map((p) => ({ params: { pair: p } }));
 }
 
 const { pair } = Astro.params;
@@ -33,6 +14,5 @@ const display = (pair || '').toUpperCase();
 <BaseLayout title={`${display} Rate • SendRemit`}>
   <a href="/rates/" class="muted">← Back to rates</a>
   <h1 style="margin:6px 0 8px;">{display} rate</h1>
-  <RateWidget pair={display} apiUrl="/data/rates.json" />
+  <RateWidget pair={display} />
 </BaseLayout>
-

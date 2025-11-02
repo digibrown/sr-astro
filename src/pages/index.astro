@@ -13,11 +13,10 @@ import RateTable from '../components/RateTable.astro';
         <a class="btn" style="background:transparent; border:1px solid rgba(255,255,255,.2)" href="/guides/">Read guides</a>
       </div>
     </div>
-    <RateWidget pair="USD-PHP" apiUrl="/data/rates.json" />
+    <RateWidget pair="USD-PHP" showSelector={true} pairsOptions={["USD-PHP","USD-MXN","USD-NGN","EUR-PHP","USD-INR","USD-PKR"]} />
   </section>
 
   <div style="height: 10px;"></div>
 
-  <RateTable apiUrl="/data/rates.json" />
+  <RateTable />
 </BaseLayout>
-

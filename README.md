@@ -44,29 +44,18 @@ Project Structure
 - `src/pages/sitemap.xml.ts` – Generated sitemap including guides and sample rates
 - `src/components/RateWidget.astro` – Live single-pair converter widget
 - `src/components/RateTable.astro` – Live table of rates
-- `public/data/rates.json` – Sample JSON feed used locally
+- `public/data/rates.json` – Sample JSON feed (not required; components default to open.er-api.com)
 - `src/layouts/` – Base and Guide layouts
 - `public/robots.txt` – Robots with sitemap reference
 
-Rates JSON Format
------------------
+Data Source
+-----------
 
-The dynamic components fetch from `apiUrl` (default `/data/rates.json`). Expected format:
-
-```
-{
-  "updatedAt": "2025-01-01T00:00:00Z",
-  "rates": {
-    "USD-PHP": { "rate": 58.45, "fee": 2.0, "delivery": "Bank, Cash Pickup" },
-    "USD-MXN": { "rate": 18.12, "fee": 1.5, "delivery": "Bank" }
-  }
-}
-```
-
-You can point components at a live endpoint with the `apiUrl` prop; e.g. in a page:
+- By default, both `RateWidget` and `RateTable` use the public endpoint `https://open.er-api.com/v6/latest` client‑side and compute the pair rate as `rates[QUOTE]` from the returned base.
+- You can override with a custom source by passing `apiUrl` (as a base URL that ends with `/latest`):
 
 ```
-<RateWidget pair="USD-PHP" apiUrl="https://api.sendremit.com/rates" />
+<RateWidget pair="USD-PHP" apiUrl="https://open.er-api.com/v6/latest" />
 ```
 
 Notes

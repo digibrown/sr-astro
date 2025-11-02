@@ -1,8 +1,10 @@
 ---
 const {
   pair = 'USD-PHP',
-  apiUrl = '/data/rates.json',
+  apiUrl = 'https://open.er-api.com/v6/latest',
   refreshMs = 60_000,
+  showSelector = false,
+  pairsOptions = ['USD-PHP','USD-MXN','USD-NGN','EUR-PHP']
 } = Astro.props;
 
 const [base, quote] = String(pair).split('-');
@@ -11,6 +13,8 @@ const cfg = {
   pair: `${base}-${quote}`,
   apiUrl,
   refreshMs: Number(refreshMs) || 60000,
+  showSelector: Boolean(showSelector),
+  pairsOptions
 };
 ---
 <div class="card" id={id} aria-live="polite" data-rate-widget>
@@ -19,7 +23,14 @@ const cfg = {
       <strong style="font-size: 18px;">{base} → {quote}</strong>
       <div class="muted" style="font-size: 12px;">Live rate and quick convert</div>
     </div>
-    <span class="pill" data-updated>—</span>
+    <div style="display:flex; align-items:center; gap:8px;">
+      { showSelector && (
+        <select data-pair-select style="min-width: 140px;">
+          {pairsOptions.map((p) => <option value={p} selected={p === `${base}-${quote}`}>{p}</option>)}
+        </select>
+      )}
+      <span class="pill" data-updated>—</span>
+    </div>
   </div>
   <div style="margin-top: 12px; display:grid; gap:12px; grid-template-columns: 1fr 1fr;">
     <label>
@@ -36,55 +47,101 @@ const cfg = {
     <span class="pill">Fee: <span style="margin-left:6px;" data-fee>—</span></span>
     <span class="pill">Delivery: <span style="margin-left:6px;" data-delivery>—</span></span>
   </div>
-  <div class="muted" style="margin-top:10px; font-size:12px;">Data source: {apiUrl}</div>
+  <div class="muted" style="margin-top:10px; font-size:12px;">Data source: open.er-api.com</div>
   <script type="application/json" data-config>{JSON.stringify(cfg)}</script>
   <script>
   (() => {
-    const root = document.currentScript.closest('[data-rate-widget]');
-    const cfgNode = root.querySelector('script[type="application/json"][data-config]');
-    const { pair, apiUrl, refreshMs } = JSON.parse(cfgNode.textContent || '{}');
-
-    const amountEl = root.querySelector('[data-amount]');
-    const resultEl = root.querySelector('[data-result]');
-    const rateEl = root.querySelector('[data-rate]');
-    const feeEl = root.querySelector('[data-fee]');
-    const deliveryEl = root.querySelector('[data-delivery]');
-    const updatedEl = root.querySelector('[data-updated]');
-
-    async function fetchRates() {
+    function init(root) {
+      if (!root || root.dataset.initialized) return;
+      root.dataset.initialized = '1';
+      const cfgNode = root.querySelector('script[type="application/json"][data-config]');
+      let pair = 'USD-PHP';
+      let apiUrl = 'https://open.er-api.com/v6/latest';
+      let refreshMs = 60000;
+      let showSelector = false;
+      let pairsOptions = [];
       try {
-        const res = await fetch(apiUrl, { cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return await res.json();
+        const raw = (cfgNode && cfgNode.textContent) || '{}';
+        const parsed = JSON.parse(raw);
+        pair = parsed.pair || pair;
+        apiUrl = parsed.apiUrl || apiUrl;
+        refreshMs = Number(parsed.refreshMs) || refreshMs;
+        showSelector = Boolean(parsed.showSelector);
+        pairsOptions = Array.isArray(parsed.pairsOptions) ? parsed.pairsOptions : [];
       } catch (e) {
-        console.error('Rate fetch failed:', e);
-        return null;
+        console.warn('RateWidget config JSON parse failed');
       }
+
+      const amountEl = root.querySelector('[data-amount]');
+      const resultEl = root.querySelector('[data-result]');
+      const rateEl = root.querySelector('[data-rate]');
+      const feeEl = root.querySelector('[data-fee]');
+      const deliveryEl = root.querySelector('[data-delivery]');
+      const updatedEl = root.querySelector('[data-updated]');
+      const headingEl = root.querySelector('strong');
+      const amtLabel = root.querySelector('label:first-child .muted');
+      const getLabel = root.querySelector('label:nth-child(2) .muted');
+      const selectEl = root.querySelector('[data-pair-select]');
+
+      async function fetchRates() {
+        try {
+          const [base] = String(pair).split('-');
+          const url = apiUrl.replace(/\/$/, '') + '/' + encodeURIComponent(base);
+          const res = await fetch(url, { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return await res.json();
+        } catch (e) {
+          console.error('Rate fetch failed:', e);
+          return null;
+        }
+      }
+
+      function updateUI(rateData) {
+        if (!rateData) return;
+        const [base, quote] = String(pair).split('-');
+        const rate = Number(rateData && rateData.rates && rateData.rates[quote]);
+        const fee = 0;
+        rateEl.textContent = isFinite(rate) ? rate.toFixed(4) : '—';
+        feeEl.textContent = '$' + (isFinite(fee) ? fee.toFixed(2) : '0.00');
+        deliveryEl.textContent = 'Varies';
+        const amt = Number(amountEl.value || 0);
+        const result = isFinite(rate) ? amt * rate : 0;
+        resultEl.value = result.toFixed(2);
+        const ts = rateData.time_last_update_unix ? new Date(rateData.time_last_update_unix * 1000) : new Date();
+        updatedEl.textContent = ts.toLocaleString();
+        if (headingEl) headingEl.textContent = base + ' → ' + quote;
+        if (amtLabel) amtLabel.textContent = 'Amount (' + base + ')';
+        if (getLabel) getLabel.textContent = 'You get (' + quote + ')';
+      }
+
+      async function refresh() {
+        const data = await fetchRates();
+        updateUI(data);
+      }
+
+      amountEl.addEventListener('input', refresh);
+      if (selectEl) {
+        selectEl.addEventListener('change', () => {
+          const next = selectEl.value;
+          if (next && next !== pair) {
+            pair = next;
+            refresh();
+          }
+        });
+      }
+      refresh();
+      if (refreshMs > 0) setInterval(refresh, refreshMs);
     }
 
-    function updateUI(rateData) {
-      if (!rateData) return;
-      const entry = rateData.rates && rateData.rates[pair];
-      if (!entry) return;
-      const rate = Number(entry.rate);
-      const fee = Number(entry.fee || 0);
-      rateEl.textContent = isFinite(rate) ? rate.toFixed(4) : '—';
-      feeEl.textContent = isFinite(fee) ? ('$' + fee.toFixed(2)) : '—';
-      deliveryEl.textContent = entry.delivery || '—';
-      const amt = Number(amountEl.value || 0);
-      const result = isFinite(rate) ? amt * rate : 0;
-      resultEl.value = result.toFixed(2);
-      updatedEl.textContent = (rateData.updatedAt ? new Date(rateData.updatedAt).toLocaleString() : 'now');
+    function boot() {
+      document.querySelectorAll('[data-rate-widget]').forEach(init);
     }
 
-    async function refresh() {
-      const data = await fetchRates();
-      updateUI(data);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
     }
-
-    amountEl.addEventListener('input', refresh);
-    refresh();
-    if (refreshMs > 0) setInterval(refresh, refreshMs);
   })();
   </script>
 </div>
