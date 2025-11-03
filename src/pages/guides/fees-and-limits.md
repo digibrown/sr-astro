@@ -1,22 +1,21 @@
 ---
-title: Fees and Limits
-description: Understand transfer fees, exchange rates, and sending limits.
+title: Fees, Rates, and Limits
+description: What to compare across providers to avoid hidden costs.
 layout: ../../layouts/GuideLayout.astro
 ---
 
-We keep pricing simple and transparent.
+Comparing providers means looking at total cost, not just the headline rate.
 
-## Exchange rates
+## FX rate (mid vs. markup)
 
-Our live rate updates frequently. You can preview it anytime on the [Rates](/rates/) page.
+- Most providers add a markup to the mid-market rate. Prefer providers with smaller markups for better value.
 
 ## Fees
 
-- Flat fee per transfer depending on corridor
-- Card funding may carry additional network fees
+- Transfer fees vary by corridor and payment method. Card and cash pick-up usually cost more than bank-to-bank.
+- Watch for extra charges like intermediary bank fees on some routes.
 
 ## Limits
 
-- Daily and monthly caps vary by corridor and verification tier
-- For higher limits, complete advanced verification
-
+- Daily and monthly caps vary by provider and verification level.
+- If you need higher limits, complete advanced verification before you send.

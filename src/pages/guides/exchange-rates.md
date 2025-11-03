@@ -1,7 +1,7 @@
 ---
-title: Understanding Exchange Rates
+title: Exchange Rates Explained
 layout: ../../layouts/GuideLayout.astro
-description: Learn about foreign exchange rates, how they work, and what affects them.
+description: What drives FX rates and how to use that when comparing providers.
 ---
 
 # Understanding Foreign Exchange Rates
@@ -44,11 +44,11 @@ Exchange rates fluctuate constantly due to various factors:
 
 ## Tips for Getting the Best Exchange Rates
 
-- Compare rates from different providers
-- Be aware of hidden fees
-- Consider timing your exchange
-- Use limit orders for better control
-- Monitor economic news and events
+- Compare total cost (rate + fees) from multiple providers
+- Avoid providers with large FX markups hidden behind “no fees” claims
+- Consider timing if your corridor is volatile
+- Use providers that lock your quote long enough to complete payment
+- Watch economic news that affects your corridor
 
 ---
 

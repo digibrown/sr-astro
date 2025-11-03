@@ -2,7 +2,7 @@
 import '../styles/global.css';
 const {
   title = 'SendRemit',
-  description = 'Fast, fair, and transparent remittances',
+  description = 'Compare money transfer providers and get the best FX rates',
   image = '/og-image.png',
   ogType = 'website'
 } = Astro.props;
@@ -54,7 +54,7 @@ const ogImage = image?.startsWith('http') ? image : (site ? new URL(image, site)
     <footer>
       <div class="muted" style="display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap;">
         <span>© {new Date().getFullYear()} SendRemit</span>
-        <span>Transparent FX • Fast payouts</span>
+        <span>Compare providers • Save on transfers</span>
         <span><a href="https://www.bestexchangerates.com/" rel="noopener" target="_blank" class="muted">bestexchangerates.com</a></span>
       </div>
     </footer>

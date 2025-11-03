@@ -8,7 +8,7 @@ function url(loc: string) {
 }
 
 export async function GET() {
-  const staticRoutes = ['/', '/rates/', '/guides/'];
+  const staticRoutes = ['/', '/rates/', '/guides/', '/how-we-compare/'];
 
   // Guides discovered from local pages
   const guideMods = import.meta.glob('./guides/*.md', { eager: true });
@@ -38,4 +38,3 @@ export async function GET() {
     headers: { 'Content-Type': 'application/xml; charset=UTF-8' },
   });
 }
-
