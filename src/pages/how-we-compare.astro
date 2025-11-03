@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+const pageTitle = 'How We Compare Providers';
+const pageDesc = 'Our methodology for calculating and ranking total transfer cost across money transfer providers.';
+---
+<BaseLayout title={`${pageTitle} • SendRemit`} description={pageDesc} ogType="article">
+  <article class="card">
+    <h1 style="margin:0 0 8px;">{pageTitle}</h1>
+    <p class="muted" style="margin:0 0 16px;">{pageDesc}</p>
+
+    <h2>What we measure</h2>
+    <p>We compare providers on <strong>total cost to the sender</strong> for a given corridor and amount. Total cost combines exchange rate and fees to show the real value of your transfer.</p>
+
+    <h3>Effective exchange rate</h3>
+    <p>We compute the <em>effective rate</em> as: amount your recipient receives ÷ amount you pay. This captures any FX markup (spread) that a provider adds to the mid‑market rate.</p>
+
+    <h3>Fees</h3>
+    <p>We include published transfer fees and, where available, additional payment or payout surcharges (e.g., card funding, cash pickup). Some corridors may also incur intermediary bank fees that vary by bank.</p>
+
+    <h2>Data sources</h2>
+    <ul>
+      <li>Live exchange rates: public FX endpoints for indicative market rates</li>
+      <li>Provider fees and options: provider websites and public docs where available</li>
+      <li>Refresh cadence: we refresh rates frequently; fees are reviewed regularly</li>
+    </ul>
+
+    <h2>Delivery options and speed</h2>
+    <p>Providers offer different payout methods (bank, wallet, cash pickup) and speeds. We highlight these where possible; your actual choices may vary by recipient country, currency, and compliance checks.</p>
+
+    <h2>Amounts and corridors</h2>
+    <p>Results can change based on how much you send and the currencies involved. For the fairest comparison, use the amount and corridor you actually plan to send.</p>
+
+    <h2>Quote timing</h2>
+    <p>Quotes are time‑limited. Exchange rates move, and providers can update pricing at any time. Always confirm the final quote on the provider’s checkout before paying.</p>
+
+    <h2>Limitations and disclaimers</h2>
+    <ul>
+      <li>Data is provided “as is” and may not reflect temporary promos or bank charges outside the provider’s control.</li>
+      <li>Availability varies by country, KYC level, and payment method.</li>
+      <li>We do not provide financial advice. Choose the provider that best fits your needs.</li>
+    </ul>
+
+    <p class="muted" style="margin-top:12px; font-size:13px;">Found an error or missing provider? Let us know and we’ll review quickly.</p>
+  </article>
+</BaseLayout>
+
